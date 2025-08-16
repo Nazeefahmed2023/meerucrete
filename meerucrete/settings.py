@@ -1,17 +1,23 @@
 from pathlib import Path
 from decouple import config
-import os
 import dj_database_url
+import os
 
+# ------------------------
 # Paths
+# ------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ------------------------
 # Security
+# ------------------------
 SECRET_KEY = config('SECRET_KEY', default='unsafe-secret-key')
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*").split(",")
 
+# ------------------------
 # Installed apps
+# ------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -22,10 +28,12 @@ INSTALLED_APPS = [
     'shop',
 ]
 
+# ------------------------
 # Middleware
+# ------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Must be just below SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # just below SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -34,7 +42,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# URLs and Templates
+# ------------------------
+# URLs & Templates
+# ------------------------
 ROOT_URLCONF = 'meerucrete.urls'
 
 TEMPLATES = [
@@ -55,16 +65,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'meerucrete.wsgi.application'
 
+# ------------------------
 # Database
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config("DATABASE_URL", default="postgres://user:password@localhost:5432/dbname"),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+# ------------------------
+DATABASE_URL = config("DATABASE_URL", default=None)
 
+if DATABASE_URL:
+    # Production / Railway
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+    }
+else:
+    # Local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config("DB_NAME", default="meerucrete_db"),
+            'USER': config("DB_USER", default="postgres"),
+            'PASSWORD': config("DB_PASSWORD", default="1234"),
+            'HOST': config("DB_HOST", default="localhost"),
+            'PORT': config("DB_PORT", default="5432"),
+        }
+    }
+
+# ------------------------
 # Password validators
+# ------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -72,22 +98,31 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# ------------------------
 # Internationalization
+# ------------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static & Media
+# ------------------------
+# Static files (CSS, JS, Images)
+# ------------------------
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Local development
-STATIC_ROOT = BASE_DIR / 'staticfiles'    # Collectstatic for Railway
+STATICFILES_DIRS = [BASE_DIR / 'static']       # local dev
+STATIC_ROOT = BASE_DIR / 'staticfiles'         # collectstatic output
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# ------------------------
+# Media files
+# ------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Email (optional)
+# ------------------------
+# Email configuration
+# ------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -95,6 +130,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-# --- Optional but recommended for production ---
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
