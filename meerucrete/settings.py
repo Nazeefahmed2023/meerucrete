@@ -1,7 +1,7 @@
 from pathlib import Path
 from decouple import config
 import os
-import dj_database_url  # Make sure to add to requirements.txt
+import dj_database_url
 
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security
 SECRET_KEY = config('SECRET_KEY', default='unsafe-secret-key')  # fallback for Railway build
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = ['*']  # Change later to your custom domain
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*").split(",")
 
 # Installed apps
 INSTALLED_APPS = [
@@ -25,7 +25,7 @@ INSTALLED_APPS = [
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # For static files on Railway
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # must be just below SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -55,23 +55,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'meerucrete.wsgi.application'
 
-# Database - Auto-switch between local and Railway
-DATABASE_URL = os.environ.get("DATABASE_URL")
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME'),
-            'USER': config('DB_USER'),
-            'PASSWORD': config('DB_PASSWORD'),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432'),
-        }
-    }
+# Database (Railway provides DATABASE_URL automatically)
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config("DATABASE_URL", default="postgres://user:password@localhost:5432/dbname"),
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
 
 # Password validators
 AUTH_PASSWORD_VALIDATORS = [
@@ -89,8 +80,8 @@ USE_TZ = True
 
 # Static & Media
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']  # local dev static files
+STATIC_ROOT = BASE_DIR / 'staticfiles'    # for collectstatic on Railway
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
