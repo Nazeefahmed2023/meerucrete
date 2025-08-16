@@ -7,7 +7,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = config('SECRET_KEY', default='unsafe-secret-key')  # fallback for Railway build
+SECRET_KEY = config('SECRET_KEY', default='unsafe-secret-key')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*").split(",")
 
@@ -25,7 +25,7 @@ INSTALLED_APPS = [
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # must be just below SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Must be just below SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -34,7 +34,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# URL and Templates
+# URLs and Templates
 ROOT_URLCONF = 'meerucrete.urls'
 
 TEMPLATES = [
@@ -55,7 +55,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'meerucrete.wsgi.application'
 
-# Database (Railway provides DATABASE_URL automatically)
+# Database
 DATABASES = {
     'default': dj_database_url.config(
         default=config("DATABASE_URL", default="postgres://user:password@localhost:5432/dbname"),
@@ -80,14 +80,14 @@ USE_TZ = True
 
 # Static & Media
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # local dev static files
-STATIC_ROOT = BASE_DIR / 'staticfiles'    # for collectstatic on Railway
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Local development
+STATIC_ROOT = BASE_DIR / 'staticfiles'    # Collectstatic for Railway
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Email
+# Email (optional)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -95,3 +95,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# --- Optional but recommended for production ---
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

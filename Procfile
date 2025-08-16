@@ -1,1 +1,1 @@
-web: gunicorn meerucrete.wsgi
+web: gunicorn meerucrete.wsgi:application
