@@ -56,11 +56,14 @@ WSGI_APPLICATION = "meerucrete.wsgi.application"
 # DATABASE
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',      # <- PGDATABASE
+        'USER': 'postgres',   # <- PGUSER
+        'PASSWORD': 'oFqjXrHLiclWBwZGSUWhtDUNoYqwuHxN', #postgres password
+        'HOST': 'postgres.railway.internal', #railway private domain 
+        'PORT': '5432',
+    }
 }
 # PASSWORD VALIDATORS
 AUTH_PASSWORD_VALIDATORS = [
