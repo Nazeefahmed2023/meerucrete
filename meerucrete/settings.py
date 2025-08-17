@@ -5,7 +5,7 @@ import os
 
 # BASE DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+DEBUG=False
 # SECURITY
 SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key")
 DEBUG = config("DEBUG", default=False, cast=bool)
