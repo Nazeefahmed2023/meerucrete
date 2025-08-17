@@ -1,17 +1,16 @@
 from pathlib import Path
-from decouple import config
-import dj_database_url
 import os
+import dj_database_url
+from decouple import config
 
-# BASE DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
-DEBUG=True
+
 # SECURITY
 SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key")
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*").split(",")
-
-# INSTALLED APPS
+DEBUG=True
+# APPS
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -21,26 +20,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "shop",
 ]
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],  # This is where your templates folder is
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
 
-# MIDDLEWARE
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # must be after SecurityMiddleware
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -49,22 +32,18 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# URLS & WSGI
 ROOT_URLCONF = "meerucrete.urls"
 WSGI_APPLICATION = "meerucrete.wsgi.application"
 
-# DATABASE
-
+# ✅ DATABASE
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',      # <- PGDATABASE
-        'USER': 'postgres',   # <- PGUSER
-        'PASSWORD': 'oFqjXrHLiclWBwZGSUWhtDUNoYqwuHxN', #postgres password
-        'HOST': 'postgres.railway.internal', #railway private domain 
-        'PORT': '5432',
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
+
 # PASSWORD VALIDATORS
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -81,8 +60,8 @@ USE_TZ = True
 
 # STATIC FILES
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]  # local dev
-STATIC_ROOT = BASE_DIR / "staticfiles"    # production
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # MEDIA FILES
